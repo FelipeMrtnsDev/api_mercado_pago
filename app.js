@@ -1,24 +1,15 @@
 const express = require("express")
 const app = express()
 const bodyParser = require("body-parser")
+const checkout = require("./Routes/checkout")
 
-const Port = 8000
-
+// usando BodyParser
 app.use(bodyParser.json())
 
-app.get("/", (req, res) => {
-    res.send({mensagem: 'Hello Wolrd'})
-})
+// usando rota de checkout de checkout
+app.use("/checkout", checkout)
 
-app.get("/compraerrada", (req, res) => {
-    res.send({mensagem: 'compra deu errado'})
-})
-
-app.get("/compracerta", (req, res) => {
-    res.send({mensagem: 'compra deu certo'})
-})
-
-
+const Port = 8000
 app.listen(Port, () => {
     console.log(`o servidor esta rodando http://localhost:${Port}`)
 });
