@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const { MercadoPagoConfig, Preference } = require("mercadopago")
+const Produtos = require("./produtos")
 
 // rota pra caso a compra de errado
 router.get("/compraerrada", (req, res) => {
@@ -13,28 +14,23 @@ router.get("/compracerta", (req, res) => {
 })
 
 //rota de pagamento, integrando api do mercado pago
-router.get("/payment", async (req, res) => {
+router.get("/payment/:quantity", async (req, res) => {
     const client = new MercadoPagoConfig({  accessToken: 'TEST-7021098593316224-091317-94654492a9962f618f801625a118e434-1985485922', sandbox: true });
     const preference = new Preference(client);
+
+    const produtos = await Produtos.findAll()
+
+    const items = produtos.map(produto => ({
+        id: produto.id.toString(), 
+        title: produto.titulo,
+        quantity: parseInt(req.params.quantity, 10), 
+        currency_id: 'BRL',
+        unit_price: produto.preco,
+    }));
     
     // trocar por informações do banco de dados
     const body = {
-        items: [
-            {
-                id: '1',
-                title: 'Camisa',
-                quantity: 1,
-                currency_id: 'BRL',
-                unit_price: 259.99,
-            },
-            {
-                id: 1,
-                title: 'Calça',
-                quantity: 3,
-                currency_id: 'BRL',
-                unit_price: 359.99,
-            }
-        ],
+        items: items,
         back_urls: {
             success: 'http://localhost:8000/checkout/compracerta',
             failure: 'http://localhost:8000/checkout/compraerrada',
